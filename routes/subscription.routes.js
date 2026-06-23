@@ -8,6 +8,11 @@ subRouter.get('/', (req,res)=>{
         message: "Subscriptions fetched successfully"
     })
 })
+subRouter.get('/upcoming-renewals', (req,res)=>{
+    res.status(200).json({
+        message: `Upcoming renewals fetched successfully`
+    })
+})
 subRouter.get('/:id', (req,res)=>{
     res.status(200).json({
         message: `Subscription with id => ${req.params.id} fetched successfully`
@@ -38,10 +43,6 @@ subRouter.put('/:id/cancel', (req,res)=>{
         message: `Subscription cancelled successfully`
     })
 })
-subRouter.get('/upcoming-renewals', (req,res)=>{
-    res.status(200).json({
-        message: `Upcoming renewals fetched successfully`
-    })
-})
+
 
 export default subRouter
