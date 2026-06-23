@@ -1,5 +1,5 @@
 import express from "express"
-import cookieParser from "cookie-pa rser";
+import cookieParser from "cookie-parser";
 
 import {PORT} from "./config/env.js"
 import authRouter from "./routes/auth.routes.js";
