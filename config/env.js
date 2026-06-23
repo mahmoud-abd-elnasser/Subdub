@@ -1,9 +1,9 @@
 import {config} from "dotenv";
 
-const nodeEnv = process.env.NODE_ENV;
-if (!nodeEnv) {
-    throw new Error("NODE_ENV must be set before loading configuration");
-}
-config({ path: `.env.${nodeEnv}` });
+const NODE_ENV = process.env.NODE_ENV || "development";
+process.env.NODE_ENV = NODE_ENV;
 
-export const { PORT, NODE_ENV } = process.env
+config({ path: `.env` });
+
+export const { PORT, DATABASE_URL } = process.env
+export {NODE_ENV}
