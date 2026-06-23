@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-const subSchema = new mongoose.model({
+const subSchema = new mongoose.Schema({
     name : {
         type: String,
         required: [true, 'Subscription Name is required'],
@@ -56,7 +56,6 @@ const subSchema = new mongoose.model({
     },
     renewalDate: {
         type: Date,
-        required: [true, 'Subscription Start Date is required'],
         validate: {
             validator: function (val) { return val > this.startDate },
             message: 'Subscription Renewal Date must be in the future'
@@ -77,7 +76,7 @@ subSchema.pre('save', function (next) {
             yearly: 365
         }
         this.renewalDate = new Date(this.startDate)
-        this.renewalDate.setMonth(this.renewalDate.getDate() + renewalPeriods[this.frequency.lowercase()])
+        this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods[this.frequency.toLowerCase()])
     }
     if(this.renewalDate < new Date()) {
         this.status = 'Expired'
