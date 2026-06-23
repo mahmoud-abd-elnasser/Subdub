@@ -6,14 +6,16 @@ import {JWT_SECRET, JWT_EXPIRES_IN} from "../config/env.js";
 
 
 export const signUp = async (req, res, next ) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    let session;
     try {
         const { name, email, password } = req.body
         const existingUser = await User.findOne({ email })
         if (existingUser) {
             return res.status(409).json({ message: "User already exists" })
         }
+
+        session = await mongoose.startSession();
+        session.startTransaction();
 
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
@@ -27,9 +29,8 @@ export const signUp = async (req, res, next ) => {
         const token = jwt.sign({ userId: newUser[0]._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
 
         await session.commitTransaction()
-        await session.endSession()
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "User created successfully",
             data: {
@@ -42,9 +43,10 @@ export const signUp = async (req, res, next ) => {
             },
         })
     } catch (e) {
-        await session.abortTransaction()
-        await session.endSession()
+        if (session?.inTransaction()) await session.abortTransaction()
         next(e)
+    } finally {
+        await session?.endSession()
     }
 }
 
@@ -86,4 +88,6 @@ export const signIn = async (req, res, next ) => {
 }
 
 
-export const signOut = async (req, res, next ) => {}
+export const signOut = async (req, res, next ) => {
+    //NOT IMPLEMENTED
+}
