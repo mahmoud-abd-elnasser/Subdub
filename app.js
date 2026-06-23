@@ -15,8 +15,11 @@ app.use('/api/v1/subscriptions', subscriptionRoutes)
 app.get('/', (req, res) => {
     res.send('Welcome to subscription tracker API!')
 })
+const startServer = async () => {
+    await connectToDB();
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+};
 
-app.listen(PORT, async () => {
-    console.log(`Server is running on port ${PORT}`)
-    await connectToDB()
-})
+startServer();
