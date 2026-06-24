@@ -15,7 +15,6 @@ export const authorize = async (req, res, next) => {
         message: "Unauthorized"
     })
     const decoded = jwt.verify(token, JWT_SECRET)
-        console.log("Decoded Token Payload:", decoded);
     const user = await User.findOne({ _id: decoded.userId })
 
     if (!user) return res.status(401).json({
@@ -63,7 +62,6 @@ export const authorizeAdmin = async (req, res, next) => {
         message: "Unauthorized"
     })
     const decoded = jwt.verify(token, JWT_SECRET)
-        console.log("Decoded Token Payload:", decoded);
     const user = await User.findOne({ _id: decoded.userId })
 
     if (!user) return res.status(401).json({

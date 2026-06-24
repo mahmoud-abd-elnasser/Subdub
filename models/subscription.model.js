@@ -69,7 +69,7 @@ const subSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-subSchema.pre('save', function (next) {
+subSchema.pre('save', async function (next) {
     if(!this.renewalDate) {
         const renewalPeriods = {
             monthly: 30,
@@ -81,7 +81,6 @@ subSchema.pre('save', function (next) {
     if(this.renewalDate < new Date()) {
         this.status = 'Expired'
     }
-    next()
 })
 
 const Subscription = mongoose.model('Subscription', subSchema)
