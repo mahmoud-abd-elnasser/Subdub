@@ -22,6 +22,14 @@ export const getUserById = async (req, res, next) => {
             success: false,
             message: "User not found"
         })
+
+        if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: You do not have permission to view this resource."
+            });
+        }
+
         res.status(200).json({
             success: true,
             message: "User fetched successfully",
@@ -34,12 +42,33 @@ export const getUserById = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
     try {
-        if (req.body.password) {
-            const salt = await bcrypt.genSalt(10)
-            const hashedPassword = await bcrypt.hash(req.body.password, salt)
-            req.body.password = hashedPassword
+        if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: You do not have permission to update this resource."
+            });
         }
-    const updatedUser = await User.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).select('-password')
+
+        const { name, email, password } = req.body;
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: req.params.id },
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!updatedUser) return res.status(404).json({
+            success: false,
+            message: "User not found"
+        });
+
         res.status(200).json({
             success: true,
             message: "User updated successfully",
@@ -52,7 +81,20 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
         try {
-            await User.findOneAndDelete({ _id: req.params.id })
+            if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Forbidden: You do not have permission to delete this resource."
+                });
+            }
+
+            const deletedUser = await User.findOneAndDelete({ _id: req.params.id })
+
+            if (!deletedUser) return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+
             res.status(200).json({
                 success: true,
                 message: "User deleted successfully"

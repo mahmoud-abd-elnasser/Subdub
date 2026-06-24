@@ -19,19 +19,21 @@ export const createSubscription = async (req, res, next) => {
 
 export const getUserSubscriptions = async (req, res, next) => {
     try {
-        if(req.user.role === 'admin' || req.user.id === req.params.id) {
-            const subs = await Subscription.find({user: req.params.id})
-            res.status(200).json({
-                success: true,
-                data: subs
+        if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not the owner of this subscription"
             })
         }
-    if (req.user.id !== req.params.id) {
-        return res.status(401).json({
+        const subs = await Subscription.find({ user: req.params.id })
+        if(!subs) return res.status(404).json({
             success: false,
-            message: "You are not the owner of this subscription"
+            message: "No subscriptions found"
         })
-    }
+        return res.status(200).json({
+            success: true,
+            data: subs
+        })
     } catch (e) {
         next(e)
     }
@@ -45,58 +47,86 @@ export const getAllSubscriptions = async (req, res, next) => {
                 data: subs
             })
     } catch (e) {
-        res.status(401).json({
-            success: false,
-            message: "You are not the owner of this subscription"
-        })
         next(e)
     }
 }
 
 export const getSubscriptionById = async (req, res, next) => {
     try {
-            const sub = await Subscription.findOne({ _id: req.params.id })
-            res.status(200).json({
-                success: true,
-                data: sub
-            })
-    } catch (e) {
-        res.status(401).json({
+        const sub = await Subscription.findById(req.params.id)
+
+        if (!sub) return res.status(404).json({
             success: false,
-            message: "Failed to get subscription"
+            message: "Subscription not found"
         })
+
+        if (req.user.role !== 'admin' && sub.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: You do not have permission to view this resource."
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: sub
+        })
+    } catch (e) {
         next(e)
     }
 }
 
 export const updateSubscription = async (req, res, next) => {
     try {
-            const sub = await Subscription.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
-            res.status(200).json({
-                success: true,
-                data: sub
-            })
-    } catch (e) {
-        res.status(401).json({
+        const sub = await Subscription.findById(req.params.id)
+
+        if (!sub) return res.status(404).json({
             success: false,
-            message: "Failed to update subscription"
+            message: "Subscription not found"
         })
+
+        if (req.user.role !== 'admin' && sub.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: You do not have permission to update this resource."
+            });
+        }
+
+        Object.assign(sub, req.body);
+        await sub.save();
+
+        res.status(200).json({
+            success: true,
+            data: sub
+        })
+    } catch (e) {
         next(e)
     }
 }
 
 export const deleteSubscription = async (req, res, next) => {
     try {
-            await Subscription.deleteOne({ _id: req.params.id })
-            res.status(200).json({
-                success: true,
-                message: "Subscription deleted successfully"
-            })
-    } catch (e) {
-        res.status(401).json({
+        const sub = await Subscription.findById(req.params.id)
+
+        if (!sub) return res.status(404).json({
             success: false,
-            message: "Failed to delete subscription"
+            message: "Subscription not found"
         })
+
+        if (req.user.role !== 'admin' && sub.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Forbidden: You do not have permission to delete this resource."
+            });
+        }
+
+        await sub.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            message: "Subscription deleted successfully"
+        })
+    } catch (e) {
         next(e)
     }
 }

@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         required: [true, 'User Role is required'],
         default: 'user'
+    },
+    tokenVersion: {
+        type: Number,
+        default: 0
     }
 },  { timestamps: true })
 
