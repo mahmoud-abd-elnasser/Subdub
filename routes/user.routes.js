@@ -1,32 +1,14 @@
 import {Router} from "express";
+import {createUser, deleteUser, getAllUsers, getUserById, updateUser} from "../controllers/user.controller.js";
+import {authorize, authorizeAdmin} from "../middlewares/auth.middleware.js";
 
 
 const userRouter = Router()
 
-userRouter.get('/', (req, res)=>{
-    res.status(200).json({
-        message: "Users fetched successfully"
-    })
-})
-userRouter.get('/:id', (req, res)=>{
-    res.status(200).json({
-        message: "User fetched successfully"
-    })
-})
-userRouter.post('/', (req, res)=>{
-    res.status(201).json({
-        message: "User Created successfully"
-    })
-})
-userRouter.put('/:id', (req, res)=>{
-    res.status(200).json({
-        message: "User Updated successfully"
-    })
-})
-userRouter.delete('/:id', (req, res)=>{
-    res.status(200).json({
-        message: "User Deleted successfully"
-    })
-})
+userRouter.get('/', authorizeAdmin , getAllUsers)
+userRouter.get('/:id', authorize, getUserById)
+userRouter.post('/', createUser)
+userRouter.put('/:id', authorize, updateUser)
+userRouter.delete('/:id', authorize, deleteUser)
 
 export default userRouter
