@@ -15,30 +15,13 @@ export const authorize = async (req, res, next) => {
         message: "Unauthorized"
     })
     const decoded = jwt.verify(token, JWT_SECRET)
-        console.log("Decoded Token Payload:", decoded);
     const user = await User.findOne({ _id: decoded.userId })
 
-    if (!user) return res.status(401).json({
+    if (!user || user.tokenVersion !== decoded.tokenVersion) return res.status(401).json({
         success: false,
         message: "Unauthorized"
     })
         req.user = user
-
-        if (req.params.id) {
-            const isAdmin = user.role === 'admin';
-            const isOwner = user._id.toString() === req.params.id;
-
-            if (isAdmin) {
-                return next();
-            }
-
-            if (!isOwner) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Forbidden: You do not have permission to view this resource."
-                });
-            }
-        }
 
         next()
     } catch (e) {
@@ -63,10 +46,9 @@ export const authorizeAdmin = async (req, res, next) => {
         message: "Unauthorized"
     })
     const decoded = jwt.verify(token, JWT_SECRET)
-        console.log("Decoded Token Payload:", decoded);
     const user = await User.findOne({ _id: decoded.userId })
 
-    if (!user) return res.status(401).json({
+    if (!user || user.tokenVersion !== decoded.tokenVersion) return res.status(401).json({
         success: false,
         message: "Unauthorized"
     })

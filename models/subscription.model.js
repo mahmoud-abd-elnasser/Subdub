@@ -81,7 +81,6 @@ subSchema.pre('save', function (next) {
     if(this.renewalDate < new Date()) {
         this.status = 'Expired'
     }
-    next()
 })
 
 const Subscription = mongoose.model('Subscription', subSchema)
