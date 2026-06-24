@@ -8,7 +8,7 @@ const userRouter = Router()
 userRouter.get('/', authorizeAdmin , getAllUsers)
 userRouter.get('/:id', authorize, getUserById)
 userRouter.post('/', createUser)
-userRouter.put('/:id', updateUser)
-userRouter.delete('/:id', deleteUser)
+userRouter.put('/:id', authorize, updateUser)
+userRouter.delete('/:id', authorize, deleteUser)
 
 export default userRouter
