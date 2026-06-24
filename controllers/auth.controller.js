@@ -8,7 +8,7 @@ import {JWT_SECRET, JWT_EXPIRES_IN} from "../config/env.js";
 export const signUp = async (req, res, next ) => {
     let session;
     try {
-        const { name, email, password } = req.body
+        const { name, email, password, role } = req.body
         const existingUser = await User.findOne({ email })
         if (existingUser) {
             return res.status(409).json({ message: "User already exists" })
@@ -21,6 +21,7 @@ export const signUp = async (req, res, next ) => {
         const hashedPassword = await bcrypt.hash(password, salt)
 
         const newUser = await User.create([{
+            role,
             name,
             email,
             password: hashedPassword
@@ -36,6 +37,7 @@ export const signUp = async (req, res, next ) => {
             data: {
             token,
             user: {
+                role,
                 name,
                 email,
                 _id: newUser[0]._id
@@ -75,6 +77,7 @@ export const signIn = async (req, res, next ) => {
             data: {
                 token,
                 user: {
+                    role: existingUser.role,
                     name: existingUser.name,
                     email: existingUser.email,
                     _id: existingUser._id
