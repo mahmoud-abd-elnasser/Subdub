@@ -8,8 +8,10 @@ import subscriptionRoutes from "./routes/subscription.routes.js";
 import connectToDB from "./db/mongodb.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
+import workflowRouter from "./routes/workflow.routes.js";
 
 const app = express()
+app.use('/api/v1/workflows', workflowRouter)
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
