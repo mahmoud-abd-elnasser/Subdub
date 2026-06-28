@@ -9,7 +9,8 @@ export const createSubscription = async (req, res, next) => {
         ...req.body,
         user: req.user._id
     })
-        const { workflowRunId } = await workflowClient.trigger({
+
+        workflowClient.trigger({
             url : `${SERVER_URL}/api/v1/workflows`,
             body: {
                 subscriptionId: subscription.id
@@ -18,11 +19,12 @@ export const createSubscription = async (req, res, next) => {
                 'Content-Type': 'application/json'
             },
             retries: 0
-        })
+        }).catch(err => console.error("Failed to trigger workflow:", err));
+
         res.status(201).json({
             success: true,
             message: "Subscription created successfully",
-            data: { subscription, workflowRunId }
+            data: { subscription }
         })
     } catch (e) {
         next(e)

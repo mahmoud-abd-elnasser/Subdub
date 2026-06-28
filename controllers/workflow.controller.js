@@ -22,15 +22,7 @@ export const sendReminders = serve( async (ctx) => {
         if(reminderDate.isAfter(dayjs())){
             await sleepUntilReminder(ctx, `Reminder-${daysBefore} days before`, reminderDate)
 
-            // Extract ONLY what the email sender actually needs to avoid circular JSON loops
-            const emailData = {
-                email: subscription.user.email,
-                name: subscription.user.name,
-                planName: subscription.name, // or whatever your field is called
-                renewalDate: subscription.renewalDate
-            }
-
-            await triggerReminder(ctx, `${daysBefore} days before reminder`, emailData)
+            await triggerReminder(ctx, `${daysBefore} days before reminder`, subscription)
         } }
 
 },{
@@ -52,7 +44,7 @@ const sleepUntilReminder = async (ctx, label, date) => {
 const triggerReminder = async (ctx, label, subscription) => {
     return await ctx.run(label, async ()=>{
         console.log(`Triggering ${label} reminder`)
-        await sendReminderEmail({
+        return await sendReminderEmail({
             to: subscription.user.email,
             type: label,
             subscription,

@@ -1,3 +1,13 @@
+const escapeHTML = (str) => {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
+
 export const generateEmailTemplate = ({
                                           userName,
                                           subscriptionName,
@@ -8,7 +18,14 @@ export const generateEmailTemplate = ({
                                           accountSettingsLink,
                                           supportLink,
                                           daysLeft,
-                                      }) => `
+                                      }) => {
+    const escapedUserName = escapeHTML(userName);
+    const escapedSubscriptionName = escapeHTML(subscriptionName);
+    const escapedPlanName = escapeHTML(planName);
+    const escapedPrice = escapeHTML(price);
+    const escapedPaymentMethod = escapeHTML(paymentMethod);
+
+    return `
 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f4f7fa;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <tr>
@@ -18,24 +35,24 @@ export const generateEmailTemplate = ({
         </tr>
         <tr>
             <td style="padding: 40px 30px;">                
-                <p style="font-size: 16px; margin-bottom: 25px;">Hello <strong style="color: #4a90e2;">${userName}</strong>,</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">Hello <strong style="color: #4a90e2;">${escapedUserName}</strong>,</p>
                 
-                <p style="font-size: 16px; margin-bottom: 25px;">Your <strong>${subscriptionName}</strong> subscription is set to renew on <strong style="color: #4a90e2;">${renewalDate}</strong> (${daysLeft} days from today).</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">Your <strong>${escapedSubscriptionName}</strong> subscription is set to renew on <strong style="color: #4a90e2;">${renewalDate}</strong> (${daysLeft} days from today).</p>
                 
                 <table cellpadding="15" cellspacing="0" border="0" width="100%" style="background-color: #f0f7ff; border-radius: 10px; margin-bottom: 25px;">
                     <tr>
                         <td style="font-size: 16px; border-bottom: 1px solid #d0e3ff;">
-                            <strong>Plan:</strong> ${planName}
+                            <strong>Plan:</strong> ${escapedPlanName}
                         </td>
                     </tr>
                     <tr>
                         <td style="font-size: 16px; border-bottom: 1px solid #d0e3ff;">
-                            <strong>Price:</strong> ${price}
+                            <strong>Price:</strong> ${escapedPrice}
                         </td>
                     </tr>
                     <tr>
                         <td style="font-size: 16px;">
-                            <strong>Payment Method:</strong> ${paymentMethod}
+                            <strong>Payment Method:</strong> ${escapedPaymentMethod}
                         </td>
                     </tr>
                 </table>
@@ -65,6 +82,7 @@ export const generateEmailTemplate = ({
     </table>
 </div>
 `;
+};
 
 export const emailTemplates = [
     {
